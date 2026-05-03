@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 import { Moon, Sun, QrCode } from 'lucide-react';
-import { useState } from 'react';
-import QRScannerModal from './QRScannerModal';
+import { useState, lazy, Suspense } from 'react';
+
+const QRScannerModal = lazy(() => import('./QRScannerModal'));
 
 export default function Header() {
   const { theme, toggleTheme, language, setLanguage } = useStore();
@@ -35,7 +36,11 @@ export default function Header() {
           </nav>
         </div>
       </div>
-      <QRScannerModal isOpen={isQRScannerOpen} onClose={() => setIsQRScannerOpen(false)} />
+      {isQRScannerOpen && (
+        <Suspense fallback={<div className="hidden">Loading Scanner...</div>}>
+          <QRScannerModal isOpen={isQRScannerOpen} onClose={() => setIsQRScannerOpen(false)} />
+        </Suspense>
+      )}
     </header>
   );
 }
