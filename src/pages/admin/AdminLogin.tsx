@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ShieldAlert, Fingerprint, ScanFace, LockKeyhole, Mail, KeyRound, Loader2, CheckCircle2, QrCode } from 'lucide-react';
@@ -18,6 +18,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [detectingFace, setDetectingFace] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   
   const [secret, setSecret] = useState('');
   const [authUri, setAuthUri] = useState('');
@@ -31,7 +32,13 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      let userCredential;
+      if (isSignUp) {
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
+      
       const uid = userCredential.user.uid;
       setUserId(uid);
       
@@ -56,8 +63,12 @@ export default function AdminLogin() {
          setStep('setup_2fa');
       }
     } catch (err: any) {
-      setError(err.message || 'Invalid admin credentials.');
-      console.error("Login error:", err);
+      if (err.code === 'auth/invalid-credential' && !isSignUp) {
+         setError('Invalid credentials. If this is a new app, please use Sign Up instead.');
+      } else {
+         setError(err.message || 'Authentication error.');
+      }
+      console.error("Auth error:", err);
     } finally {
       setLoading(false);
     }
@@ -234,8 +245,15 @@ export default function AdminLogin() {
                 </div>
 
                 <button disabled={loading} type="submit" className="w-full bg-white text-gray-950 font-bold rounded-xl py-3 mt-4 hover:bg-gray-100 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
-                  {loading ? <Loader2 className="animate-spin" size={20} /> : 'Authenticate Phase 1'}
+                  {loading ? <Loader2 className="animate-spin" size={20} /> : (isSignUp ? 'Create Admin Account' : 'Authenticate Phase 1')}
                 </button>
+                
+                <div className="text-center mt-4 text-sm text-gray-500">
+                  {isSignUp ? 'Already have an account?' : 'New app?'} {' '}
+                  <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="text-pink-500 hover:text-pink-400 font-medium">
+                    {isSignUp ? 'Sign In phase 1' : 'Sign Up as Admin'}
+                  </button>
+                </div>
               </motion.form>
             )}
 
