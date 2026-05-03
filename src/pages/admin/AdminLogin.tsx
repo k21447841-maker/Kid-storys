@@ -56,7 +56,8 @@ export default function AdminLogin() {
          setStep('setup_2fa');
       }
     } catch (err: any) {
-      setError('Invalid admin credentials.');
+      setError(err.message || 'Invalid admin credentials.');
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
