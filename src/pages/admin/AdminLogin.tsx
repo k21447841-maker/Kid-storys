@@ -73,7 +73,8 @@ export default function AdminLogin() {
       }
     } catch (err: any) {
       if (err.code === 'auth/invalid-credential' && !isSignUp) {
-         setError('Invalid credentials. If this is a new app, please use Sign Up instead.');
+         setError('Account not found or bad password. If you are setting up the app, please "Sign Up" below.');
+         // Optionally pulse the sign up button or guide them
       } else {
          setError(err.message || 'Authentication error.');
       }

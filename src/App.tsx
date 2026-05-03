@@ -6,6 +6,7 @@ import { useStore } from './store/useStore';
 // Layouts
 import FrontendLayout from './components/layouts/FrontendLayout';
 import AdminLayout from './components/layouts/AdminLayout';
+import RequireUserAuth from './components/layouts/RequireUserAuth';
 
 // Fallback loader
 const Loader = () => (
@@ -44,22 +45,12 @@ function App() {
     }
   }, [theme]);
 
+  // Wrap the entire app in RequireUserAuth
   return (
     <HelmetProvider>
       <BrowserRouter>
         <Suspense fallback={<Loader />}>
           <Routes>
-            {/* Frontend Routes */}
-            <Route element={<FrontendLayout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/stories" element={<StoryList />} />
-              <Route path="/category/:slug" element={<StoryList />} />
-              <Route path="/story/:slug" element={<StoryDetail />} />
-              <Route path="/privacy-policy" element={<Privacy />} />
-              <Route path="/terms-and-conditions" element={<Terms />} />
-              <Route path="/disclaimer" element={<Disclaimer />} />
-            </Route>
-
             {/* Admin Auth */}
             <Route path="/admin/login" element={<AdminLogin />} />
 
@@ -75,8 +66,18 @@ function App() {
               <Route path="/admin/logs" element={<AdminLogs />} />
             </Route>
 
-            <Route element={<FrontendLayout />}>
-              <Route path="*" element={<NotFound />} />
+            {/* Frontend Routes */}
+            <Route element={<RequireUserAuth />}>
+              <Route element={<FrontendLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/stories" element={<StoryList />} />
+                <Route path="/category/:slug" element={<StoryList />} />
+                <Route path="/story/:slug" element={<StoryDetail />} />
+                <Route path="/privacy-policy" element={<Privacy />} />
+                <Route path="/terms-and-conditions" element={<Terms />} />
+                <Route path="/disclaimer" element={<Disclaimer />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
             </Route>
           </Routes>
         </Suspense>

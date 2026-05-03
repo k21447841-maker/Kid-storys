@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
-import { Moon, Sun, QrCode } from 'lucide-react';
+import { Moon, Sun, QrCode, LogOut } from 'lucide-react';
 import { useState, lazy, Suspense } from 'react';
+import { auth } from '../../firebase/config';
+import { signOut } from 'firebase/auth';
 
 const QRScannerModal = lazy(() => import('./QRScannerModal'));
 
@@ -14,23 +16,26 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 tracking-tight font-poppins">StoryBlogger</Link>
-          <nav className="flex gap-4 items-center">
+          <nav className="flex gap-2 sm:gap-4 items-center">
             <button onClick={() => setIsQRScannerOpen(true)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors" aria-label="Scan QR Code" title="Scan QR Code">
               <QrCode size={20} />
             </button>
             <select 
               value={language}
               onChange={(e) => setLanguage(e.target.value as any)}
-              className="bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm dark:text-gray-200 outline-none focus:ring-2 focus:ring-pink-500"
+              className="bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm dark:text-gray-200 outline-none focus:ring-2 focus:ring-pink-500 hidden sm:block"
             >
               <option value="ALL">All Languages</option>
               <option value="EN">English</option>
               <option value="HI">Hindi</option>
             </select>
-            <Link to="/" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Home</Link>
+            <Link to="/" className="hidden sm:inline-block text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Home</Link>
             <Link to="/stories" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Stories</Link>
             <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors" aria-label="Toggle dark mode">
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button onClick={() => signOut(auth)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-red-500 transition-colors" aria-label="Sign out" title="Sign out">
+              <LogOut size={20} />
             </button>
           </nav>
         </div>
