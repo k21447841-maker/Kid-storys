@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "Story": {
+      "title": "Story",
+      "description": "A single story post",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "theme": { "type": "string" },
+        "language": { "type": "string", "enum": ["EN", "HI"] },
+        "bannerUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "content": { "type": "string" },
+        "metaTitle": { "type": "string" },
+        "metaDescription": { "type": "string" },
+        "keywords": { "type": "string" },
+        "readTime": { "type": "number" },
+        "isPublished": { "type": "boolean" },
+        "views": { "type": "number" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["title", "slug", "categoryId", "language", "content", "createdAt", "updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Story category",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "theme": { "type": "string", "enum": ["Default", "Kids", "Horror", "Moral", "Royal"] },
+        "imageUrl": { "type": "string" },
+        "isEnabled": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["name", "slug", "theme", "isEnabled", "createdAt", "updatedAt"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Global settings for the platform",
+      "type": "object",
+      "properties": {
+        "heroImageUrl": { "type": "string" },
+        "adsenseHeader": { "type": "string" },
+        "adsenseInContent": { "type": "string" },
+        "adsenseSidebar": { "type": "string" },
+        "adsenseFooter": { "type": "string" },
+        "socialYoutube": { "type": "string" },
+        "socialInstagram": { "type": "string" },
+        "socialTelegram": { "type": "string" },
+        "socialFacebook": { "type": "string" },
+        "socialYoutubeEnabled": { "type": "boolean" },
+        "socialInstagramEnabled": { "type": "boolean" },
+        "socialTelegramEnabled": { "type": "boolean" },
+        "socialFacebookEnabled": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "stories/{storyId}": {
+      "schema": { "$ref": "#/entities/Story" },
+      "description": "All stories"
+    },
+    "categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "All categories"
+    },
+    "settings/{settingId}": {
+      "schema": { "$ref": "#/entities/SiteSettings" },
+      "description": "Global site settings"
+    }
+  }
+}

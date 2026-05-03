@@ -1,0 +1,103 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidStory(data) {
+      return data.keys().hasAll(['title', 'slug', 'categoryId', 'language', 'content', 'createdAt', 'updatedAt']) &&
+             data.title is string && data.title.size() <= 500 &&
+             data.slug is string && data.slug.size() <= 600 &&
+             data.categoryId is string && data.categoryId.size() <= 128 &&
+             data.language is string && (data.language == 'EN' || data.language == 'HI') &&
+             data.content is string && data.content.size() <= 1048576 &&
+             data.createdAt is number && data.updatedAt is number &&
+             data.get('theme', '') is string &&
+             data.get('bannerUrl', '') is string && data.get('bannerUrl', '').size() <= 2048 &&
+             data.get('thumbnailUrl', '') is string && data.get('thumbnailUrl', '').size() <= 2048 &&
+             data.get('metaTitle', '') is string && data.get('metaTitle', '').size() <= 500 &&
+             data.get('metaDescription', '') is string && data.get('metaDescription', '').size() <= 1000 &&
+             data.get('keywords', '') is string && data.get('keywords', '').size() <= 1000 &&
+             data.get('readTime', 0) is number &&
+             data.get('views', 0) is number &&
+             data.get('isPublished', false) is bool;
+    }
+
+    function isValidCategory(data) {
+      return data.keys().hasAll(['name', 'slug', 'theme', 'isEnabled', 'createdAt', 'updatedAt']) &&
+             data.name is string && data.name.size() <= 256 &&
+             data.slug is string && data.slug.size() <= 300 &&
+             data.theme is string && (data.theme == 'Default' || data.theme == 'Kids' || data.theme == 'Horror' || data.theme == 'Moral' || data.theme == 'Royal') &&
+             data.isEnabled is bool &&
+             data.createdAt is number && data.updatedAt is number &&
+             data.get('imageUrl', '') is string && data.get('imageUrl', '').size() <= 2048;
+    }
+
+    function isValidSettings(data) {
+      return data.keys().hasAll(['createdAt', 'updatedAt']) &&
+             data.createdAt is number && data.updatedAt is number &&
+             data.get('heroImageUrl', '') is string && data.get('heroImageUrl', '').size() <= 2048 &&
+             data.get('adsenseHeader', '') is string && data.get('adsenseHeader', '').size() <= 5000 &&
+             data.get('adsenseInContent', '') is string && data.get('adsenseInContent', '').size() <= 5000 &&
+             data.get('adsenseSidebar', '') is string && data.get('adsenseSidebar', '').size() <= 5000 &&
+             data.get('adsenseFooter', '') is string && data.get('adsenseFooter', '').size() <= 5000 &&
+             data.get('socialYoutube', '') is string && data.get('socialYoutube', '').size() <= 2048 &&
+             data.get('socialInstagram', '') is string && data.get('socialInstagram', '').size() <= 2048 &&
+             data.get('socialTelegram', '') is string && data.get('socialTelegram', '').size() <= 2048 &&
+             data.get('socialFacebook', '') is string && data.get('socialFacebook', '').size() <= 2048 &&
+             data.get('socialYoutubeEnabled', false) is bool &&
+             data.get('socialInstagramEnabled', false) is bool &&
+             data.get('socialTelegramEnabled', false) is bool &&
+             data.get('socialFacebookEnabled', false) is bool;
+    }
+
+    match /stories/{storyId} {
+      allow read: if true;
+      allow list: if true;
+      
+      allow create: if isSignedIn() && isValidId(storyId) && isValidStory(incoming()) && incoming().createdAt == request.time.toMillis();
+      
+      allow update: if (isValidStory(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time.toMillis() && isSignedIn()) || 
+      // Allow anyone to increment views
+      (incoming().diff(existing()).affectedKeys().hasOnly(['views']) && incoming().views == existing().views + 1 && incoming().views is number);
+      
+      allow delete: if isSignedIn();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow list: if true;
+      
+      allow create: if isSignedIn() && isValidId(categoryId) && isValidCategory(incoming()) && incoming().createdAt == request.time.toMillis();
+      allow update: if isSignedIn() && isValidCategory(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time.toMillis();
+      allow delete: if isSignedIn();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow list: if true;
+      
+      allow create: if isSignedIn() && isValidId(settingId) && isValidSettings(incoming()) && incoming().createdAt == request.time.toMillis();
+      allow update: if isSignedIn() && isValidSettings(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time.toMillis();
+      allow delete: if isSignedIn();
+    }
+  }
+}

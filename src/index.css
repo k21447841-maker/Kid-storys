@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito", "Noto Sans Devanagari", sans-serif;
+  --font-poppins: "Poppins", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply antialiased text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-950;
+  }
+}
+
