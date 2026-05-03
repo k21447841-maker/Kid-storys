@@ -24,8 +24,10 @@ function useCachedSubscription(key: string, setupSubscription: (callback: (data:
     if (globalCache[key].subscribers.size === 1) {
       // First subscriber, start listening
       globalCache[key].unsubscribe = setupSubscription((newData) => {
-        globalCache[key].data = newData;
-        globalCache[key].subscribers.forEach(sub => sub(newData));
+        if (globalCache[key]) {
+          globalCache[key].data = newData;
+          globalCache[key].subscribers.forEach(sub => sub(newData));
+        }
         setLoading(false);
       }, (err) => {
         console.error(err);
