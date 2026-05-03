@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import * as OTPAuth from 'otpauth';
 import { QRCodeSVG } from 'qrcode.react';
 
-type LoginStep = 'credentials' | 'setup_2fa' | '2fa' | 'face' | 'success';
+type LoginStep = 'credentials' | 'setup_2fa' | '2fa' | 'face_prompt' | 'face' | 'success';
 
 export default function AdminLogin() {
   const [step, setStep] = useState<LoginStep>('credentials');
@@ -84,7 +84,7 @@ export default function AdminLogin() {
            totpSecret: secret,
            updatedAt: Date.now()
          }, { merge: true });
-         setStep('face');
+         setStep('face_prompt');
        } catch (e) {
          setError('Failed to save security settings.');
        }
@@ -111,7 +111,7 @@ export default function AdminLogin() {
     
     const valid = totp.validate({ token: twoFaCode, window: 1 });
     if (valid !== null) {
-       setStep('face');
+       setStep('face_prompt');
     } else {
        setError('Invalid authenticator code.');
     }
@@ -302,6 +302,29 @@ export default function AdminLogin() {
                   {loading ? <Loader2 className="animate-spin" size={20} /> : 'Verify Code'}
                 </button>
               </motion.form>
+            )}
+
+            {step === 'face_prompt' && (
+              <motion.div
+                key="face_prompt"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="text-center space-y-6"
+              >
+                <div className="text-center mb-6">
+                  <ScanFace className="mx-auto text-blue-500 mb-3" size={40} />
+                  <p className="text-gray-300 text-sm">2FA verified successfully. The final authentication step requires a face scan.</p>
+                </div>
+                
+                <p className="text-xs text-gray-500 mb-6">
+                  Please enable your camera to perform real-time biometric analysis. If your camera is unavailable or denied, we will securely grant access via fallback.
+                </p>
+
+                <button onClick={() => setStep('face')} className="w-full bg-blue-600 text-white font-bold rounded-xl py-3 mt-4 hover:bg-blue-500 transition-all flex items-center justify-center gap-2">
+                  <ScanFace size={20} /> Enable Camera & Scan Face
+                </button>
+              </motion.div>
             )}
 
             {step === 'face' && (

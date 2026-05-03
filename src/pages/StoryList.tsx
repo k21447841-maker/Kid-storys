@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { useStories, useCategories } from '../lib/useData';
 import { useStore } from '../store/useStore';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import { QrCode, X, Share2 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function StoryList() {
   const { slug } = useParams();
@@ -12,6 +14,7 @@ export default function StoryList() {
   
   const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState(slug || '');
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   if (sLoading || cLoading) {
     return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div></div>;
@@ -27,6 +30,21 @@ export default function StoryList() {
     return true;
   });
 
+  const getShareUrl = () => {
+    const origin = window.location.origin;
+    if (selectedCat) return `${origin}/category/${selectedCat}`;
+    return `${origin}/stories`;
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({ title: category?.name || 'Stories', url: getShareUrl() });
+    } else {
+      navigator.clipboard.writeText(getShareUrl());
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
@@ -36,18 +54,26 @@ export default function StoryList() {
           placeholder="Search stories..." 
           value={search} 
           onChange={e => setSearch(e.target.value)} 
-          className="w-full md:w-96 border p-2 rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600"
+          className="w-full md:w-96 border p-2 rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 outline-none focus:ring-2 focus:ring-pink-500"
         />
-        <select 
-          value={selectedCat} 
-          onChange={e => setSelectedCat(e.target.value)}
-          className="w-full md:w-auto border p-2 rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600"
-        >
-          <option value="">All Categories</option>
-          {categories.filter(c => c.isEnabled).map(c => (
-             <option key={c.id} value={c.slug}>{c.name}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <select 
+            value={selectedCat} 
+            onChange={e => setSelectedCat(e.target.value)}
+            className="w-full md:w-auto border p-2 rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 outline-none focus:ring-2 focus:ring-pink-500"
+          >
+            <option value="">All Categories</option>
+            {categories.filter(c => c.isEnabled).map(c => (
+               <option key={c.id} value={c.slug}>{c.name}</option>
+            ))}
+          </select>
+          <button onClick={() => setIsQRModalOpen(true)} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-white transition-colors" title="Show QR Code">
+            <QrCode size={20} />
+          </button>
+          <button onClick={handleShare} className="p-2 bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 rounded-lg hover:bg-pink-200 dark:hover:bg-pink-900/50 transition-colors" title="Share via Link">
+            <Share2 size={20} />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -86,6 +112,44 @@ export default function StoryList() {
           No stories found matching your criteria.
         </div>
       )}
+
+      {/* QR Code Modal for Sharing Category/List */}
+      <AnimatePresence>
+        {isQRModalOpen && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsQRModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden w-full max-w-sm p-8 text-center"
+            >
+              <button 
+                onClick={() => setIsQRModalOpen(false)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full p-2 transition-colors"
+              >
+                <X size={16} />
+              </button>
+              
+              <div className="mb-6">
+                <QrCode size={40} className="mx-auto text-pink-500 mb-4" />
+                <h3 className="text-xl font-bold dark:text-white">Share {category ? category.name : 'Stories'}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Scan this code with another device to open this link.</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl w-fit mx-auto border-2 border-gray-100 shadow-sm">
+                 <QRCodeSVG value={getShareUrl()} size={200} />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

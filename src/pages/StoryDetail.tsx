@@ -6,8 +6,9 @@ import { collection, query, where, getDocs, doc, updateDoc, increment } from 'fi
 import Markdown from 'react-markdown';
 import { useCategories } from '../lib/useData';
 import { useStore } from '../store/useStore';
-import { Bookmark, Type, Share2, ArrowLeft, ArrowRight, Facebook, Twitter, Linkedin } from 'lucide-react';
-import { motion, useScroll } from 'motion/react';
+import { Bookmark, Type, Share2, ArrowLeft, ArrowRight, Facebook, Twitter, Linkedin, QrCode, X } from 'lucide-react';
+import { motion, useScroll, AnimatePresence } from 'motion/react';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function StoryDetail() {
   const { slug } = useParams();
@@ -18,6 +19,7 @@ export default function StoryDetail() {
   const { scrollYProgress } = useScroll();
   const [fontSize, setFontSize] = useState<number>(18);
   const { bookmarks, toggleBookmark } = useStore();
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchStory() {
@@ -140,6 +142,7 @@ export default function StoryDetail() {
           <button onClick={shareFacebook} className="p-2 bg-[#1877F2]/10 dark:bg-[#1877F2]/20 text-[#1877F2] rounded-full hover:bg-[#1877F2]/20 dark:hover:bg-[#1877F2]/30 transition-colors" title="Share on Facebook"><Facebook size={20} /></button>
           <button onClick={shareTwitter} className="p-2 bg-sky-100 dark:bg-sky-900/30 text-sky-500 rounded-full hover:bg-sky-200 dark:hover:bg-sky-900/50 transition-colors" title="Share on Twitter"><Twitter size={20} /></button>
           <button onClick={shareLinkedIn} className="p-2 bg-[#0A66C2]/10 dark:bg-[#0A66C2]/20 text-[#0A66C2] rounded-full hover:bg-[#0A66C2]/20 dark:hover:bg-[#0A66C2]/30 transition-colors" title="Share on LinkedIn"><Linkedin size={20} /></button>
+          <button onClick={() => setIsQRModalOpen(true)} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors" title="Show QR Code"><QrCode size={20} /></button>
           <button onClick={handleShare} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors" title="Share"><Share2 size={20} /></button>
         </div>
 
@@ -173,6 +176,44 @@ export default function StoryDetail() {
           ) : <div></div>}
         </div>
       </div>
+
+      {/* QR Code Modal for Sharing */}
+      <AnimatePresence>
+        {isQRModalOpen && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsQRModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden w-full max-w-sm p-8 text-center"
+            >
+              <button 
+                onClick={() => setIsQRModalOpen(false)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full p-2 transition-colors"
+              >
+                <X size={16} />
+              </button>
+              
+              <div className="mb-6">
+                <QrCode size={40} className="mx-auto text-pink-500 mb-4" />
+                <h3 className="text-xl font-bold dark:text-white">Share via QR Code</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Scan this code with another device to open this story.</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl w-fit mx-auto border-2 border-gray-100 shadow-sm">
+                 <QRCodeSVG value={window.location.href} size={200} />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </article>
   );
 }
