@@ -29,7 +29,6 @@ export default function Header() {
             </select>
             <Link to="/" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Home</Link>
             <Link to="/stories" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Stories</Link>
-            <Link to="/admin" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Admin</Link>
             <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors" aria-label="Toggle dark mode">
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>

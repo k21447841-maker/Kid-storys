@@ -19,8 +19,8 @@ export function useStories(publishedOnly = true) {
       setStories(data);
       setLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'stories');
       setLoading(false);
+      handleFirestoreError(error, OperationType.LIST, 'stories');
     });
 
     return () => unsub();
@@ -40,8 +40,8 @@ export function useCategories() {
       setCategories(data);
       setLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'categories');
       setLoading(false);
+      handleFirestoreError(error, OperationType.LIST, 'categories');
     });
 
     return () => unsub();
@@ -63,8 +63,8 @@ export function useSettings() {
       }
       setLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'settings/global');
       setLoading(false);
+      handleFirestoreError(error, OperationType.GET, 'settings/global');
     });
 
     return () => unsub();

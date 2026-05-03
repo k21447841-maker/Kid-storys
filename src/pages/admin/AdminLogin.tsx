@@ -42,10 +42,19 @@ export default function AdminLogin() {
       const uid = userCredential.user.uid;
       setUserId(uid);
       
-      const docRef = doc(db, 'admin_security', uid);
-      const docSnap = await getDoc(docRef);
+      let docSnap;
+      try {
+        const docRef = doc(db, 'admin_security', uid);
+        docSnap = await getDoc(docRef);
+      } catch (getDocError: any) {
+        console.warn("Failed to fetch admin_security document. Check Firestore rules or database connection:", getDocError);
+        // Fallback: If we created the account just now, it is safe to proceed without existing doc
+        if (!isSignUp) {
+           throw new Error(getDocError.message || "Could not connect to database securely. Please check connection.");
+        }
+      }
       
-      if (docSnap.exists() && docSnap.data().totpSecret) {
+      if (docSnap && docSnap.exists() && docSnap.data().totpSecret) {
          setSecret(docSnap.data().totpSecret);
          setStep('2fa');
       } else {

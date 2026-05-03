@@ -1,20 +1,15 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
-
-// Enable offline persistence for faster load times and caching
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code == 'failed-precondition') {
-    console.warn('Multiple tabs open, persistence can only be enabled in one tab at a a time.');
-  } else if (err.code == 'unimplemented') {
-    console.warn('The current browser does not support all of the features required to enable persistence');
-  }
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+  // @ts-ignore
+  databaseId: firebaseConfig.firestoreDatabaseId
 });
+export const auth = getAuth(app);
 
 export enum OperationType {
   CREATE = 'create',
@@ -60,5 +55,6 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path
   };
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  // DO NOT THROW here, because this is often called inside async callbacks like onSnapshot,
+  // throwing here will cause unhandled promise rejections or break the listener and freeze the UI.
 }
