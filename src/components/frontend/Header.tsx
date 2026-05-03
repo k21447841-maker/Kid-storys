@@ -13,15 +13,16 @@ export default function Header() {
             <select 
               value={language}
               onChange={(e) => setLanguage(e.target.value as any)}
-              className="bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm dark:text-white"
+              className="bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm dark:text-gray-200 outline-none focus:ring-2 focus:ring-pink-500"
             >
               <option value="ALL">All Lanuages</option>
               <option value="EN">English</option>
               <option value="HI">Hindi</option>
             </select>
-            <Link to="/" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium">Home</Link>
-            <Link to="/stories" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium">Stories</Link>
-            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200" aria-label="Toggle dark mode">
+            <Link to="/" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Home</Link>
+            <Link to="/stories" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Stories</Link>
+            <Link to="/admin" className="text-gray-700 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">Admin</Link>
+            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors" aria-label="Toggle dark mode">
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
           </nav>

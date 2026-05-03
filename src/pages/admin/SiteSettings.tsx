@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { db, handleFirestoreError, OperationType } from '../../firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { logAdminAction } from '../../lib/auditLogger';
 
 export default function SiteSettings() {
   const [form, setForm] = useState({
@@ -40,6 +41,7 @@ export default function SiteSettings() {
         updatedAt: Date.now(),
         createdAt: form['createdAt' as keyof typeof form] || Date.now()
       }, { merge: true });
+      await logAdminAction('UPDATE', 'Settings', 'global', 'Updated global site settings');
       alert('Settings saved successfully!');
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, 'settings/global');

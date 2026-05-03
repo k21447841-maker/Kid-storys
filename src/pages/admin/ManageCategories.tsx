@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCategories } from '../../lib/useData';
 import { db, handleFirestoreError, OperationType } from '../../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { logAdminAction } from '../../lib/auditLogger';
 import slugify from 'slugify';
 
 export default function ManageCategories() {
@@ -23,8 +24,9 @@ export default function ManageCategories() {
           isEnabled: form.isEnabled,
           updatedAt: Date.now()
         });
+        await logAdminAction('UPDATE', 'Category', form.id, `Updated category: ${form.name}`);
       } else {
-        await addDoc(collection(db, 'categories'), {
+        const newDoc = await addDoc(collection(db, 'categories'), {
           name: form.name,
           slug,
           theme: form.theme,
@@ -33,6 +35,7 @@ export default function ManageCategories() {
           createdAt: Date.now(),
           updatedAt: Date.now()
         });
+        await logAdminAction('CREATE', 'Category', newDoc.id, `Created category: ${form.name}`);
       }
       setForm({ id: '', name: '', theme: 'Default', imageUrl: '', isEnabled: true });
       setIsEditing(false);
@@ -46,10 +49,11 @@ export default function ManageCategories() {
     setIsEditing(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, name?: string) => {
     if (confirm('Are you sure?')) {
       try {
         await deleteDoc(doc(db, 'categories', id));
+        await logAdminAction('DELETE', 'Category', id, `Deleted category: ${name}`);
       } catch (e) {
         handleFirestoreError(e, OperationType.DELETE, 'categories');
       }
@@ -104,7 +108,7 @@ export default function ManageCategories() {
                   <td className="p-4 dark:text-gray-300">{c.isEnabled ? <span className="text-green-500">Enabled</span> : <span className="text-red-500">Disabled</span>}</td>
                   <td className="p-4 flex gap-2">
                     <button onClick={() => handleEdit(c)} className="text-blue-500">Edit</button>
-                    <button onClick={() => handleDelete(c.id)} className="text-red-500">Delete</button>
+                    <button onClick={() => handleDelete(c.id, c.name)} className="text-red-500">Delete</button>
                   </td>
                 </tr>
               ))}

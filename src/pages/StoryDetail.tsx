@@ -6,7 +6,7 @@ import { collection, query, where, getDocs, doc, updateDoc, increment } from 'fi
 import Markdown from 'react-markdown';
 import { useCategories } from '../lib/useData';
 import { useStore } from '../store/useStore';
-import { Bookmark, Type, Share2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Bookmark, Type, Share2, ArrowLeft, ArrowRight, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { motion, useScroll } from 'motion/react';
 
 export default function StoryDetail() {
@@ -70,6 +70,9 @@ export default function StoryDetail() {
 
   const themeClass = getThemeClass(story.theme || category?.theme || 'Default');
 
+  const shareTitle = story.title ? encodeURIComponent(story.title) : '';
+  const shareUrl = encodeURIComponent(window.location.href);
+
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({ title: story.title, text: story.metaDescription, url: window.location.href });
@@ -77,6 +80,18 @@ export default function StoryDetail() {
       navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
     }
+  };
+
+  const shareFacebook = () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const shareTwitter = () => {
+    window.open(`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const shareLinkedIn = () => {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -114,13 +129,18 @@ export default function StoryDetail() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         {/* Controls */}
-        <div className="flex justify-end gap-4 mb-8">
+        <div className="flex flex-wrap justify-end gap-3 mb-8">
           <button onClick={() => setFontSize(s => Math.min(s + 2, 28))} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200" title="Increase Font Size"><Type size={20} /></button>
           <button onClick={() => setFontSize(s => Math.max(s - 2, 14))} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200" title="Decrease Font Size"><Type size={14} /></button>
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 my-auto mx-1"></div>
           <button onClick={() => toggleBookmark(story.id)} className={`p-2 rounded-full transition-colors ${isBookmarked ? 'bg-pink-100 text-pink-600 dark:bg-pink-900 dark:text-pink-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'} hover:bg-gray-200 dark:hover:bg-gray-700`} title="Bookmark">
              <Bookmark size={20} fill={isBookmarked ? 'currentColor' : 'none'} />
           </button>
-          <button onClick={handleShare} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200" title="Share"><Share2 size={20} /></button>
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 my-auto mx-1"></div>
+          <button onClick={shareFacebook} className="p-2 bg-[#1877F2]/10 dark:bg-[#1877F2]/20 text-[#1877F2] rounded-full hover:bg-[#1877F2]/20 dark:hover:bg-[#1877F2]/30 transition-colors" title="Share on Facebook"><Facebook size={20} /></button>
+          <button onClick={shareTwitter} className="p-2 bg-sky-100 dark:bg-sky-900/30 text-sky-500 rounded-full hover:bg-sky-200 dark:hover:bg-sky-900/50 transition-colors" title="Share on Twitter"><Twitter size={20} /></button>
+          <button onClick={shareLinkedIn} className="p-2 bg-[#0A66C2]/10 dark:bg-[#0A66C2]/20 text-[#0A66C2] rounded-full hover:bg-[#0A66C2]/20 dark:hover:bg-[#0A66C2]/30 transition-colors" title="Share on LinkedIn"><Linkedin size={20} /></button>
+          <button onClick={handleShare} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors" title="Share"><Share2 size={20} /></button>
         </div>
 
         {/* Content */}

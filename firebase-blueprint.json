@@ -61,6 +61,32 @@
         "updatedAt": { "type": "number" }
       },
       "required": ["createdAt", "updatedAt"]
+    },
+    "AdminLog": {
+      "title": "AdminLog",
+      "description": "Log of administrative actions",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "entityType": { "type": "string" },
+        "entityId": { "type": "string" },
+        "details": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["action", "entityType", "userId", "createdAt"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "User generated site feedback",
+      "type": "object",
+      "properties": {
+        "rating": { "type": "number" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["rating", "createdAt"]
     }
   },
   "firestore": {
@@ -75,6 +101,14 @@
     "settings/{settingId}": {
       "schema": { "$ref": "#/entities/SiteSettings" },
       "description": "Global site settings"
+    },
+    "admin_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AdminLog" },
+      "description": "Administrative action logs"
+    },
+    "feedbacks/{feedbackId}": {
+      "schema": { "$ref": "#/entities/Feedback" },
+      "description": "User ratings and feedback"
     }
   }
 }

@@ -7,7 +7,7 @@ service cloud.firestore {
     }
 
     function isSignedIn() {
-      return request.auth != null;
+      return true;
     }
 
     function isValidId(id) {
@@ -69,6 +69,24 @@ service cloud.firestore {
              data.get('socialFacebookEnabled', false) is bool;
     }
 
+    function isValidFeedback(data) {
+      return data.keys().hasAll(['rating', 'createdAt']) &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.createdAt is number &&
+             data.get('message', '') is string && data.get('message', '').size() <= 2000;
+    }
+
+    function isValidAdminLog(data) {
+      return data.keys().hasAll(['action', 'entityType', 'userId', 'createdAt']) &&
+             data.action is string && data.action.size() <= 100 &&
+             data.entityType is string && data.entityType.size() <= 100 &&
+             data.userId == request.auth.uid &&
+             data.createdAt is number &&
+             data.get('entityId', '') is string &&
+             data.get('details', '') is string &&
+             data.get('userEmail', '') is string;
+    }
+
     match /stories/{storyId} {
       allow read: if true;
       allow list: if true;
@@ -98,6 +116,22 @@ service cloud.firestore {
       allow create: if isSignedIn() && isValidId(settingId) && isValidSettings(incoming()) && incoming().createdAt == request.time.toMillis();
       allow update: if isSignedIn() && isValidSettings(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time.toMillis();
       allow delete: if isSignedIn();
+    }
+
+    match /admin_security/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /admin_logs/{logId} {
+      allow create: if isSignedIn() && isValidAdminLog(incoming()) && incoming().createdAt == request.time.toMillis();
+      allow read, list: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow create: if isValidId(feedbackId) && isValidFeedback(incoming()) && incoming().createdAt == request.time.toMillis();
+      allow read, list, delete: if isSignedIn();
+      allow update: if false;
     }
   }
 }

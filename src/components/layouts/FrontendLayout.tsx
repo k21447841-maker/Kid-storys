@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../frontend/Header';
 import Footer from '../frontend/Footer';
+import FeedbackWidget from '../frontend/FeedbackWidget';
 import { useSettings } from '../../lib/useData';
 
 export default function FrontendLayout() {
@@ -23,6 +24,7 @@ export default function FrontendLayout() {
       )}
       
       <Footer />
+      <FeedbackWidget />
     </div>
   );
 }
