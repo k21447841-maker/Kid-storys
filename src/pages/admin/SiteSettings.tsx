@@ -6,10 +6,15 @@ import { logAdminAction } from '../../lib/auditLogger';
 export default function SiteSettings() {
   const [form, setForm] = useState({
     heroImageUrl: '',
+    adProvider: 'none',
     adsenseHeader: '',
     adsenseInContent: '',
     adsenseSidebar: '',
     adsenseFooter: '',
+    adsterraHeader: '',
+    adsterraInContent: '',
+    adsterraSidebar: '',
+    adsterraFooter: '',
     socialYoutube: '',
     socialInstagram: '',
     socialTelegram: '',
@@ -92,25 +97,64 @@ export default function SiteSettings() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold dark:text-white border-b dark:border-gray-700 pb-2 mb-4">AdSense Configuration</h2>
-          <div className="grid grid-cols-1 gap-4 text-sm font-mono">
-            <div>
-              <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Header Ad Code</label>
-              <textarea placeholder="<script>...</script>" value={form.adsenseHeader} onChange={e => setForm({...form, adsenseHeader: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
-            </div>
-            <div>
-              <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">In-Content Ad Code</label>
-              <textarea placeholder="<script>...</script>" value={form.adsenseInContent} onChange={e => setForm({...form, adsenseInContent: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
-            </div>
-            <div>
-              <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Sidebar Ad Code</label>
-              <textarea placeholder="<script>...</script>" value={form.adsenseSidebar} onChange={e => setForm({...form, adsenseSidebar: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
-            </div>
-            <div>
-              <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Footer Ad Code</label>
-              <textarea placeholder="<script>...</script>" value={form.adsenseFooter} onChange={e => setForm({...form, adsenseFooter: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
-            </div>
+          <h2 className="text-xl font-bold dark:text-white border-b dark:border-gray-700 pb-2 mb-4">Monetization Configuration</h2>
+          
+          <div className="mb-6">
+            <label className="text-sm font-medium dark:text-gray-300 block mb-2">Primary Ad Network</label>
+            <select 
+              value={form.adProvider} 
+              onChange={e => setForm({...form, adProvider: e.target.value as any})}
+              className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full md:w-1/2"
+            >
+              <option value="none">None (Ads Disabled)</option>
+              <option value="adsense">Google AdSense</option>
+              <option value="adsterra">Adsterra</option>
+            </select>
           </div>
+
+          {form.adProvider === 'adsense' && (
+            <div className="grid grid-cols-1 gap-4 text-sm font-mono mt-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 font-sans">Google AdSense Codes</h3>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Header Ad Code</label>
+                <textarea placeholder="<script>...</script>" value={form.adsenseHeader} onChange={e => setForm({...form, adsenseHeader: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">In-Content Ad Code</label>
+                <textarea placeholder="<script>...</script>" value={form.adsenseInContent} onChange={e => setForm({...form, adsenseInContent: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Sidebar Ad Code</label>
+                <textarea placeholder="<script>...</script>" value={form.adsenseSidebar} onChange={e => setForm({...form, adsenseSidebar: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Footer Ad Code</label>
+                <textarea placeholder="<script>...</script>" value={form.adsenseFooter} onChange={e => setForm({...form, adsenseFooter: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+            </div>
+          )}
+
+          {form.adProvider === 'adsterra' && (
+            <div className="grid grid-cols-1 gap-4 text-sm font-mono mt-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 font-sans">Adsterra Script Snippets</h3>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Header Native/Banner Ad</label>
+                <textarea placeholder="<script>...</script>" value={form.adsterraHeader} onChange={e => setForm({...form, adsterraHeader: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">In-Content Ad (e.g. Social Bar or Banner)</label>
+                <textarea placeholder="<script>...</script>" value={form.adsterraInContent} onChange={e => setForm({...form, adsterraInContent: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Sidebar Ad</label>
+                <textarea placeholder="<script>...</script>" value={form.adsterraSidebar} onChange={e => setForm({...form, adsterraSidebar: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+              <div>
+                <label className="text-sm font-medium dark:text-gray-300 font-sans mb-1 block">Footer Ad</label>
+                <textarea placeholder="<script>...</script>" value={form.adsterraFooter} onChange={e => setForm({...form, adsterraFooter: e.target.value})} className="border p-2 rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 w-full h-24"></textarea>
+              </div>
+            </div>
+          )}
         </section>
 
         <div className="pt-4 border-t dark:border-gray-700">

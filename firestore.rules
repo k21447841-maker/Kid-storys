@@ -55,10 +55,15 @@ service cloud.firestore {
       return data.keys().hasAll(['createdAt', 'updatedAt']) &&
              data.createdAt is number && data.updatedAt is number &&
              data.get('heroImageUrl', '') is string && data.get('heroImageUrl', '').size() <= 2048 &&
+             data.get('adProvider', 'none') is string && (data.get('adProvider', 'none') == 'none' || data.get('adProvider', 'none') == 'adsense' || data.get('adProvider', 'none') == 'adsterra') &&
              data.get('adsenseHeader', '') is string && data.get('adsenseHeader', '').size() <= 5000 &&
              data.get('adsenseInContent', '') is string && data.get('adsenseInContent', '').size() <= 5000 &&
              data.get('adsenseSidebar', '') is string && data.get('adsenseSidebar', '').size() <= 5000 &&
              data.get('adsenseFooter', '') is string && data.get('adsenseFooter', '').size() <= 5000 &&
+             data.get('adsterraHeader', '') is string && data.get('adsterraHeader', '').size() <= 5000 &&
+             data.get('adsterraInContent', '') is string && data.get('adsterraInContent', '').size() <= 5000 &&
+             data.get('adsterraSidebar', '') is string && data.get('adsterraSidebar', '').size() <= 5000 &&
+             data.get('adsterraFooter', '') is string && data.get('adsterraFooter', '').size() <= 5000 &&
              data.get('socialYoutube', '') is string && data.get('socialYoutube', '').size() <= 2048 &&
              data.get('socialInstagram', '') is string && data.get('socialInstagram', '').size() <= 2048 &&
              data.get('socialTelegram', '') is string && data.get('socialTelegram', '').size() <= 2048 &&

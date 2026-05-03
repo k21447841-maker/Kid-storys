@@ -1,60 +1,45 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { db, handleFirestoreError, OperationType } from '../firebase/config';
-import { collection, query, where, getDocs, doc, updateDoc, increment } from 'firebase/firestore';
+import { db } from '../firebase/config';
+import { doc, updateDoc, increment } from 'firebase/firestore';
 import Markdown from 'react-markdown';
-import { useCategories } from '../lib/useData';
+import { useCategories, useSettings, useStories } from '../lib/useData';
 import { useStore } from '../store/useStore';
 import { Bookmark, Type, Share2, ArrowLeft, ArrowRight, Facebook, Twitter, Linkedin, QrCode, X } from 'lucide-react';
 import { motion, useScroll, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
+import AdSlot from '../components/frontend/AdSlot';
 
 export default function StoryDetail() {
   const { slug } = useParams();
-  const [story, setStory] = useState<any>(null);
-  const [navStories, setNavStories] = useState<{prev: any, next: any}>({prev: null, next: null});
-  const [loading, setLoading] = useState(true);
+  const { stories, loading: storiesLoading } = useStories(true);
   const { categories } = useCategories();
+  const { settings } = useSettings();
   const { scrollYProgress } = useScroll();
   const [fontSize, setFontSize] = useState<number>(18);
   const { bookmarks, toggleBookmark } = useStore();
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
+  const inContentAd = settings?.adProvider === 'adsterra' ? settings.adsterraInContent : 
+                      settings?.adProvider === 'adsense' ? settings.adsenseInContent : null;
+
+  const storyIndex = stories.findIndex(s => s.slug === slug);
+  const story = storyIndex >= 0 ? stories[storyIndex] : null;
+
+  const navStories = {
+    prev: (storyIndex > 0 && stories.length > 0) ? stories[storyIndex - 1] : null,
+    next: (storyIndex < stories.length - 1 && storyIndex >= 0) ? stories[storyIndex + 1] : null
+  };
+
   useEffect(() => {
-    async function fetchStory() {
-      try {
-        const q = query(collection(db, 'stories'), where('slug', '==', slug), where('isPublished', '==', true));
-        const qs = await getDocs(q);
-        if (!qs.empty) {
-          const docData = qs.docs[0];
-          const data = { id: docData.id, ...docData.data() };
-          setStory(data);
-          
-          // Increment View (no await needed for UI)
-          updateDoc(doc(db, 'stories', docData.id), { views: increment(1) }).catch(console.error);
-
-          // Just fetch a random prev/next for simplicity if we can't do complex cursors easily
-          const allQ = query(collection(db, 'stories'), where('isPublished', '==', true));
-          const allQs = await getDocs(allQ);
-          const all = allQs.docs.map(d => ({id: d.id, ...d.data()}));
-          const idx = all.findIndex(a => a.id === docData.id);
-          setNavStories({
-            prev: idx > 0 ? all[idx - 1] : null,
-            next: idx < all.length - 1 ? all[idx + 1] : null
-          });
-        }
-        setLoading(false);
-      } catch (e) {
-        handleFirestoreError(e, OperationType.GET, 'stories');
-        setLoading(false);
-      }
+    // Only increment view if story exists and we haven't mounted multiple times
+    if (story && story.id) {
+       updateDoc(doc(db, 'stories', story.id), { views: increment(1) }).catch(() => {});
     }
-    setLoading(true);
-    fetchStory();
-  }, [slug]);
+  }, [story?.id]);
 
-  if (loading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div></div>;
+  if (storiesLoading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div></div>;
   if (!story) return <div className="text-center py-20 text-2xl font-bold dark:text-white">Story not found.</div>;
 
   const category = categories.find(c => c.id === story.categoryId);
@@ -152,6 +137,12 @@ export default function StoryDetail() {
             <Markdown>{story.content}</Markdown>
           </div>
         </div>
+
+        {inContentAd && (
+          <div className="my-8">
+            <AdSlot html={inContentAd} />
+          </div>
+        )}
 
         {/* Next / Prev */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-16 pt-8 border-t dark:border-gray-800">

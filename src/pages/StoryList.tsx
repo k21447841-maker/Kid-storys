@@ -84,7 +84,7 @@ export default function StoryList() {
               <Link to={`/story/${story.slug}`} className="block group">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl dark:shadow-none dark:border border-gray-700 transition-all duration-300">
                   <div className="relative h-48 w-full">
-                    <img src={story.thumbnailUrl || `https://picsum.photos/600/400?random=${story.id}`} alt={story.title} className="w-full h-full object-cover" crossOrigin="anonymous" referrerPolicy="no-referrer" />
+                    <img src={story.thumbnailUrl || `https://picsum.photos/600/400?random=${story.id}`} alt={story.title} loading="lazy" className="w-full h-full object-cover" crossOrigin="anonymous" referrerPolicy="no-referrer" />
                     <div className="absolute top-4 left-4">
                       <span className="bg-pink-500 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">{cat?.name || 'Story'}</span>
                     </div>

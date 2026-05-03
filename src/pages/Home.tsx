@@ -54,7 +54,7 @@ export default function Home() {
           {enabledCategories.map((cat, i) => (
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }} key={cat.id}>
               <Link to={`/category/${cat.slug}`} className="block relative h-32 rounded-2xl overflow-hidden group">
-                <img src={cat.imageUrl || `https://picsum.photos/400/300?random=${cat.id}`} alt={cat.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" crossOrigin="anonymous" referrerPolicy="no-referrer" />
+                <img src={cat.imageUrl || `https://picsum.photos/400/300?random=${cat.id}`} alt={cat.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" crossOrigin="anonymous" referrerPolicy="no-referrer" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                 <div className="absolute inset-0 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">{cat.name}</h3>
@@ -95,7 +95,7 @@ function StoryCard({ story, categories }: { story: any, categories: any[] }) {
     <Link to={`/story/${story.slug}`} className="block group">
       <div className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl dark:shadow-none dark:border border-gray-700 transition-all duration-300 transform group-hover:-translate-y-1">
         <div className="relative h-48 w-full">
-          <img src={story.thumbnailUrl || `https://picsum.photos/600/400?random=${story.id}`} alt={story.title} className="w-full h-full object-cover" crossOrigin="anonymous" referrerPolicy="no-referrer" />
+          <img src={story.thumbnailUrl || `https://picsum.photos/600/400?random=${story.id}`} alt={story.title} loading="lazy" className="w-full h-full object-cover" crossOrigin="anonymous" referrerPolicy="no-referrer" />
           <div className="absolute top-4 left-4">
             <span className="bg-pink-500 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">{category?.name || 'Story'}</span>
           </div>

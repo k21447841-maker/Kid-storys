@@ -1,30 +1,37 @@
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { useStore } from './store/useStore';
 
 // Layouts
 import FrontendLayout from './components/layouts/FrontendLayout';
 import AdminLayout from './components/layouts/AdminLayout';
 
-// Frontend Pages
-import Home from './pages/Home';
-import StoryList from './pages/StoryList';
-import StoryDetail from './pages/StoryDetail';
-import Privacy from './pages/legal/Privacy';
-import Terms from './pages/legal/Terms';
-import Disclaimer from './pages/legal/Disclaimer';
-import NotFound from './pages/NotFound';
+// Fallback loader
+const Loader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+  </div>
+);
+
+// Lazy load pages
+const Home = lazy(() => import('./pages/Home'));
+const StoryList = lazy(() => import('./pages/StoryList'));
+const StoryDetail = lazy(() => import('./pages/StoryDetail'));
+const Privacy = lazy(() => import('./pages/legal/Privacy'));
+const Terms = lazy(() => import('./pages/legal/Terms'));
+const Disclaimer = lazy(() => import('./pages/legal/Disclaimer'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Admin Pages
-import AdminLogin from './pages/admin/AdminLogin';
-import Dashboard from './pages/admin/Dashboard';
-import ManageStories from './pages/admin/ManageStories';
-import StoryEditor from './pages/admin/StoryEditor';
-import ManageCategories from './pages/admin/ManageCategories';
-import SiteSettings from './pages/admin/SiteSettings';
-import ManageFeedback from './pages/admin/ManageFeedback';
-import AdminLogs from './pages/admin/AdminLogs';
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const ManageStories = lazy(() => import('./pages/admin/ManageStories'));
+const StoryEditor = lazy(() => import('./pages/admin/StoryEditor'));
+const ManageCategories = lazy(() => import('./pages/admin/ManageCategories'));
+const SiteSettings = lazy(() => import('./pages/admin/SiteSettings'));
+const ManageFeedback = lazy(() => import('./pages/admin/ManageFeedback'));
+const AdminLogs = lazy(() => import('./pages/admin/AdminLogs'));
 
 function App() {
   const { theme } = useStore();
@@ -37,43 +44,42 @@ function App() {
     }
   }, [theme]);
 
-  // Read auth state solely for route protection is handled in AdminLayout
-  // but we should just provide the login route outside of AdminLayout
-
   return (
     <HelmetProvider>
       <BrowserRouter>
-        <Routes>
-          {/* Frontend Routes */}
-          <Route element={<FrontendLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/stories" element={<StoryList />} />
-            <Route path="/category/:slug" element={<StoryList />} />
-            <Route path="/story/:slug" element={<StoryDetail />} />
-            <Route path="/privacy-policy" element={<Privacy />} />
-            <Route path="/terms-and-conditions" element={<Terms />} />
-            <Route path="/disclaimer" element={<Disclaimer />} />
-          </Route>
+        <Suspense fallback={<Loader />}>
+          <Routes>
+            {/* Frontend Routes */}
+            <Route element={<FrontendLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/stories" element={<StoryList />} />
+              <Route path="/category/:slug" element={<StoryList />} />
+              <Route path="/story/:slug" element={<StoryDetail />} />
+              <Route path="/privacy-policy" element={<Privacy />} />
+              <Route path="/terms-and-conditions" element={<Terms />} />
+              <Route path="/disclaimer" element={<Disclaimer />} />
+            </Route>
 
-          {/* Admin Auth */}
-          <Route path="/admin/login" element={<AdminLogin />} />
+            {/* Admin Auth */}
+            <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* Admin Routes */}
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<Dashboard />} />
-            <Route path="/admin/stories" element={<ManageStories />} />
-            <Route path="/admin/story/new" element={<StoryEditor />} />
-            <Route path="/admin/story/edit/:id" element={<StoryEditor />} />
-            <Route path="/admin/categories" element={<ManageCategories />} />
-            <Route path="/admin/settings" element={<SiteSettings />} />
-            <Route path="/admin/feedbacks" element={<ManageFeedback />} />
-            <Route path="/admin/logs" element={<AdminLogs />} />
-          </Route>
+            {/* Admin Routes */}
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<Dashboard />} />
+              <Route path="/admin/stories" element={<ManageStories />} />
+              <Route path="/admin/story/new" element={<StoryEditor />} />
+              <Route path="/admin/story/edit/:id" element={<StoryEditor />} />
+              <Route path="/admin/categories" element={<ManageCategories />} />
+              <Route path="/admin/settings" element={<SiteSettings />} />
+              <Route path="/admin/feedbacks" element={<ManageFeedback />} />
+              <Route path="/admin/logs" element={<AdminLogs />} />
+            </Route>
 
-          <Route element={<FrontendLayout />}>
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
+            <Route element={<FrontendLayout />}>
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </HelmetProvider>
   );
